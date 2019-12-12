@@ -16,7 +16,6 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - run: |
-          az group create -l northeurope -n $RESOURCE_GROUP
           az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
       - env:
           RESOURCE_GROUP: db-api-radix-qa
