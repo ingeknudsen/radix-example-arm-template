@@ -21,5 +21,6 @@ jobs:
       run: |
         az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
         ACCESS_TOKEN=$(az account get-access-token | jq -r '.accessToken')
-        curl -X POST "http://api.radix.equinor.com/api/v1/applications/radix-example-arm-template/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN" -d "{ \"branch\": \"master\", \"commitID\": \"4faca8595c5283a9d0f17a623b9255a0d9866a2e\",}"
+        echo $ACCESS_TOKEN
+        curl -X POST "https://api.radix.equinor.com/api/v1/applications/radix-example-arm-template/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN" -d "{ \"branch\": \"master\", \"commitID\": \"4faca8595c5283a9d0f17a623b9255a0d9866a2e\",}"
 
