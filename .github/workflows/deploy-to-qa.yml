@@ -22,7 +22,7 @@ jobs:
         az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
     - name: deploy-api  
       run: |        
-        ACCESS_TOKEN=$(az account get-access-token | jq -r '.accessToken')
+        ACCESS_TOKEN=$(az account get-access-token --resource 1025aa65-09e1-41a8-8c59-68ede2e41340 | jq -r '.accessToken')
         echo $ACCESS_TOKEN
         curl -f -X POST "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/radix-example-arm-template/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN" -d "{ \"branch\": \"master\", \"commitID\": \"4faca8595c5283a9d0f17a623b9255a0d9866a2e\",}"
     - name: set-api-secrets
