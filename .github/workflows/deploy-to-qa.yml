@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: deploy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: Azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: deploy-api  
+      env:
+        ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
+      run: |    
+        BRANCH=${GITHUB_REF##*/}    
+        curl -v -f -X POST "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/radix-example-arm-template/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d "{\"branch\":\"${BRANCH}\", \"commitID\":\"${GITHUB_SHA}\"}"
+    - name: deploy-arm-template
+      env:
+        RESOURCE_GROUP: db-api-radix-qa
+        DEPLOY_NAME: azuredeploy
+      run: |
+        az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
+    - name: set-api-secrets
+      run: |
+        echo 'set secrets'
