@@ -18,7 +18,8 @@ jobs:
       run: |        
         ACCESS_TOKEN=${{ secrets.K8S_CREDENTIALS }}
         curl -v -f -X GET "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/radix-example-arm-template" -H "accept: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
-        curl -f -X POST "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/radix-example-arm-template/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN" -d "{ \"branch\": \"master\", \"commitID\": \"4faca8595c5283a9d0f17a623b9255a0d9866a2e\",}"  
+        echo 'managed to get application'
+        curl -v -f -X POST "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/radix-example-arm-template/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN" -d "{ \"branch\": \"master\", \"commitID\": \"4faca8595c5283a9d0f17a623b9255a0d9866a2e\",}"  
     - name: deploy-arm-template
       env:
         RESOURCE_GROUP: db-api-radix-qa
