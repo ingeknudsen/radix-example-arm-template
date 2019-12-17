@@ -1,32 +1,43 @@
-var express = require("express");
-var bodyParser = require("body-parser");
-var app = express();
+const express = require("express");
+const bodyParser = require("body-parser");
+const storageAccount = require("./storage");
 
+const storage = storageAccount.todo();
+const app = express();
+
+// TODO: error handling in general
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-var todos = [];
 app.get("/todos", (req, res) => {
-  res.json(todos);
+  storage.getTodos(function(todos) {
+    res.json(todos);
+  });
 });
 
 app.get("/todos/:todoId", (req, res) => {
-  const todo = todos.find(t => t.id == req.params.todoId);
-  res.json(todo);
+  storage.getTodoById(req.params.todoId, function(todo) {
+    res.json(todo);
+  });
 });
 
 app.post("/todos", (req, res) => {
-  todos.push(req.body);
+  storage.saveTodo(req.body);
+  res.end();
+});
+
+app.put("/todos/:todoId", (req, res) => {
+  storage.saveTodo(req.body);
   res.end();
 });
 
 app.delete("/todos/:todoId", (req, res) => {
-  todos.splice(
-    todos.findIndex(x => x.id == req.params.todoId),
-    1
-  );
+  storage.deleteTodo(req.params.todoId);
+  res.end();
 });
 
 app.listen(3000, () => {
+  storage.bootstrap();
+
   console.log("Server running on port 3000");
 });

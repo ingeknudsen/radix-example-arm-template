@@ -14,6 +14,8 @@ spec:
     - name: http
       port: 3000
     public: true
+    secrets:
+      - AZURE_STORAGE_CONNECTION_STRING
     environmentConfig:
     - environment: qa
       horizontalScaling:
