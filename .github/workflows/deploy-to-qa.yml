@@ -21,12 +21,12 @@ jobs:
       run: |    
         BRANCH=${GITHUB_REF##*/}    
         curl -v -f -X POST "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d "{\"branch\":\"${BRANCH}\", \"commitID\":\"${GITHUB_SHA}\"}"
-    - name: deploy-arm-template
-      env:
-        RESOURCE_GROUP: db-api-radix-qa
-        DEPLOY_NAME: azuredeploy
-      run: |
-        // az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
+    #- name: deploy-arm-template
+     # env:
+      #  RESOURCE_GROUP: db-api-radix-qa
+       # DEPLOY_NAME: azuredeploy
+      #run: |
+        # az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
     - name: set-api-secrets
       env:
         ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
@@ -37,4 +37,4 @@ jobs:
       run: |
         CONNECTION_STRING=$(az group deployment show -g db-api-radix-qa -n azuredeploy --query properties.outputs.storageConnectionString.value)
         BODY="{\"secretValue\":${CONNECTION_STRING}}"
-        curl -v -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
+        echo curl -v -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
