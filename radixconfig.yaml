@@ -16,11 +16,12 @@ spec:
     public: true
     secrets:
       - AZURE_STORAGE_CONNECTION_STRING
+      - APPINSIGHTS_INSTRUMENTATIONKEY
     environmentConfig:
     - environment: qa
       horizontalScaling:
         minReplicas: 1
-        maxReplicas: 2
+        maxReplicas: 3
       monitoring: true
       resources:
         requests:

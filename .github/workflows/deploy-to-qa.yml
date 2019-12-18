@@ -27,7 +27,7 @@ jobs:
         DEPLOY_NAME: azuredeploy
       run: |
          az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
-    - name: set-api-secrets
+    - name: set-connection-string-secret
       env:
         ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
         APP_NAME: radix-example-arm-template
@@ -37,4 +37,15 @@ jobs:
       run: |
         CONNECTION_STRING=$(az group deployment show -g db-api-radix-qa -n azuredeploy --query properties.outputs.storageConnectionString.value)
         BODY="{\"secretValue\":${CONNECTION_STRING}}"
+        curl -v -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
+    - name: set-instrumentation-key-secret
+      env:
+        ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
+        APP_NAME: radix-example-arm-template
+        SECRET_NAME: APPINSIGHTS_INSTRUMENTATIONKEY
+        COMPONENT_NAME: api
+        ENVIRONMENT: qa
+      run: |
+        INSTRUMENTATIONKEY=$(az group deployment show -g db-api-radix-qa -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
+        BODY="{\"secretValue\":${INSTRUMENTATIONKEY}}"
         curl -v -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
