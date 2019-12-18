@@ -21,10 +21,8 @@ jobs:
       env:
         ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
       run: |    
-        BRANCH=${GITHUB_REF##*/}
-        BODY="{\"branch\":\"${BRANCH}\", \"commitID\":\"${GITHUB_SHA}\"}"
-        
-        curl -i -f -X POST "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
+        BRANCH=${GITHUB_REF##*/}   
+        curl -i -v -f -X POST "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d "{\"branch\":\"${BRANCH}\", \"commitID\":\"${GITHUB_SHA}\"}"
     - name: deploy-arm-template
       env:
         DEPLOY_NAME: azuredeploy
@@ -53,9 +51,9 @@ jobs:
         INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
         BODY="{\"secretValue\":${INSTRUMENTATIONKEY}}"
         SECRET_NAME=APPINSIGHTS_INSTRUMENTATIONKEY
-        curl -i -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
+        curl -i -v -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
 
         CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
         BODY="{\"secretValue\":${CONNECTION_STRING}}"
         SECRET_NAME=AZURE_STORAGE_CONNECTION_STRING
-        curl -i -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
+        curl -i -v -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
