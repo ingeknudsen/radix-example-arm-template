@@ -36,4 +36,4 @@ jobs:
         ENVIRONMENT: qa
       run: |
         CONNECTION_STRING=$(az group deployment show -g db-api-radix-qa -n azuredeploy --query properties.outputs.storageConnectionString.value)
-        curl -v -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d "{\"secretValue\":\"${CONNECTION_STRING}\"}"
+        curl -v -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d "{\"secretValue\":${CONNECTION_STRING}}"
