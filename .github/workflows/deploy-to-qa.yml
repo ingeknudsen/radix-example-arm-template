@@ -26,7 +26,7 @@ jobs:
         RESOURCE_GROUP: db-api-radix-qa
         DEPLOY_NAME: azuredeploy
       run: |
-        az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
+        // az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
     - name: set-api-secrets
       env:
         ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
