@@ -7,6 +7,9 @@ spec:
   - name: qa
     build:
       from: master
+  - name: prod
+    build:
+      from: release
   components:
   - name: "api"
     src: "./todoapi"
@@ -30,5 +33,15 @@ spec:
         limits:
           memory: "250M"
           cpu: "500m"
-      variables:
-        PIPELINE_IMG_TAG: "master-latest"
+    - environment: prod
+      horizontalScaling:
+        minReplicas: 2
+        maxReplicas: 5
+      monitoring: false
+      resources:
+        requests:
+          memory: "100M"
+          cpu: "50m"
+        limits:
+          memory: "250M"
+          cpu: "500m"

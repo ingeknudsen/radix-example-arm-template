@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - release
+
+jobs:
+  build:
+    name: deploy
+    runs-on: ubuntu-latest
+    env:
+      APP_NAME: radix-example-arm-template
+      BRANCH: ${{ github-ref##*/ }} 
+    steps:
+    - uses: actions/checkout@v1
+    - uses: Azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: deploy-api-to-radix 
+      env:
+        ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
+      run: |    
+        curl -i -f -X POST "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d "{\"branch\":\"${BRANCH}\", \"commitID\":\"${GITHUB_SHA}\"}"
+    - name: deploy-arm-template
+      env:
+        DEPLOY_NAME: azuredeploy
+      run: |
+        RESOURCE_GROUP=db-api-radix-qa
+        if [ $BRANCH = "release" ]
+        then
+            RESOURCE_GROUP=db-api-radix-prod
+        fi    
+         az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
+    - name: set-secrets
+      env:
+        ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
+        COMPONENT_NAME: api 
+      run: |
+        ENVIRONMENT=qa
+        if [ $BRANCH = "release" ]
+        then
+            ENVIRONMENT=prod
+        fi   
+        RESOURCE_GROUP=db-api-radix-${ENVIRONMENT}
+
+        INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
+        BODY="{\"secretValue\":${INSTRUMENTATIONKEY}}"
+        SECRET_NAME=APPINSIGHTS_INSTRUMENTATIONKEY
+        curl -i -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
+
+        CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
+        BODY="{\"secretValue\":${CONNECTION_STRING}}"
+        SECRET_NAME=AZURE_STORAGE_CONNECTION_STRING
+        curl -i -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
