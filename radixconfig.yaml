@@ -22,7 +22,7 @@ spec:
       horizontalScaling:
         minReplicas: 1
         maxReplicas: 3
-      monitoring: true
+      monitoring: false
       resources:
         requests:
           memory: "100M"
