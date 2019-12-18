@@ -22,7 +22,7 @@ exports.todo = () => {
         const todos = result.entries.map(entity => entityToTodo(entity));
         callback(todos);
       } else {
-        console.log(error);
+        callback(null, error);
       }
     });
   };
@@ -36,7 +36,7 @@ exports.todo = () => {
       if (!error) {
         callback(entityToTodo(result));
       } else {
-        console.log(error);
+        callback(null, error);
       }
     });
   };

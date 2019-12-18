@@ -13,14 +13,24 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get("/todos", (req, res) => {
-  storage.getTodos(function(todos) {
-    res.json(todos);
+  storage.getTodos(function(todos, err) {
+    if (err) {
+      res.status(500);
+      res.end();
+    } else {
+      res.json(todos);
+    }
   });
 });
 
 app.get("/todos/:todoId", (req, res) => {
-  storage.getTodoById(req.params.todoId, function(todo) {
-    res.json(todo);
+  storage.getTodoById(req.params.todoId, function(todo, err) {
+    if (err) {
+      res.status(500);
+      res.end();
+    } else {
+      res.json(todo);
+    }
   });
 });
 
