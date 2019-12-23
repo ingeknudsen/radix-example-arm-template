@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       APP_NAME: radix-example-arm-template
+      RESOURCE_GROUP_QA: db-api-radix-qa
+      RESOURCE_GROUP_PROD: db-api-radix-prod
     steps:
     - uses: actions/checkout@v1
     - uses: Azure/login@v1
@@ -44,7 +46,8 @@ jobs:
     - name: Get instrumentation key
       id: getInstrumentationKey
       run: |
-        echo ::set-output name=value::$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
+        echo ::set-output name=qa::$(az group deployment show -g ${RESOURCE_GROUP_QA} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
+        echo ::set-output name=prod::$(az group deployment show -g ${RESOURCE_GROUP_PROD} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
     - name: set-secrets
       env:
         ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
@@ -59,7 +62,7 @@ jobs:
         RESOURCE_GROUP=db-api-radix-${ENVIRONMENT}
 
         # INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
-        BODY="{\"secretValue\":${{ steps.getInstrumentationKey.outputs.value }}}"
+        BODY="{\"secretValue\":${{ steps.getInstrumentationKey.outputs.qa }}}"
         SECRET_NAME=APPINSIGHTS_INSTRUMENTATIONKEY
         curl -i -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
 
