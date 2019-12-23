@@ -17,12 +17,18 @@ jobs:
     - uses: Azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: deploy-api-to-radix 
+#    - name: deploy-api-to-radix-old
+#      env:
+#        ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
+#      run: |    
+#        BRANCH=${GITHUB_REF##*/}   
+#        curl -i -f -X POST "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d "{\"branch\":\"${BRANCH}\", \"commitID\":\"${GITHUB_SHA}\"}"
+    - name: deploy-api-to-radix
+      uses: equinor/radix-github-actions@master
       env:
-        ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
-      run: |    
-        BRANCH=${GITHUB_REF##*/}   
-        curl -i -f -X POST "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/pipelines/build-deploy" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d "{\"branch\":\"${BRANCH}\", \"commitID\":\"${GITHUB_SHA}\"}"
+        APP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
+      with:
+        args: "build-deploy --context playground -b ${GITHUB_REF##*/}"
     - name: deploy-arm-template
       env:
         DEPLOY_NAME: azuredeploy
