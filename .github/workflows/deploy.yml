@@ -31,42 +31,67 @@ jobs:
         APP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
       with:
         args: "build-deploy --context playground -b ${GITHUB_REF##*/}"
-    - name: deploy-arm-template
-      env:
-        DEPLOY_NAME: azuredeploy
-      run: |
-        BRANCH=${GITHUB_REF##*/} 
-        RESOURCE_GROUP=db-api-radix-qa
-        if [ $BRANCH = "release" ]
-        then
-            RESOURCE_GROUP=db-api-radix-prod
-        fi    
-
-        az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
-    - name: Get instrumentation key
-      id: getInstrumentationKey
-      run: |
-        echo ::set-output name=qa::$(az group deployment show -g ${RESOURCE_GROUP_QA} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
-        echo ::set-output name=prod::$(az group deployment show -g ${RESOURCE_GROUP_PROD} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
-    - name: set-secrets
-      env:
-        ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
-        COMPONENT_NAME: api 
+#    - name: deploy-arm-template
+#      env:
+#        DEPLOY_NAME: azuredeploy
+#      run: |
+#        BRANCH=${GITHUB_REF##*/} 
+#        RESOURCE_GROUP=db-api-radix-qa
+#        if [ $BRANCH = "release" ]
+#        then
+#            RESOURCE_GROUP=db-api-radix-prod
+#        fi    
+#
+#        az group deployment create -g $RESOURCE_GROUP -n $DEPLOY_NAME --template-file ./arm-templates/azuredeploy.json --parameters ./arm-templates/azuredeploy.parameters.json
+#      env:
+#        ACCESS_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
+#        COMPONENT_NAME: api 
+#      run: |
+#        BRANCH=${GITHUB_REF##*/} 
+#        ENVIRONMENT=qa
+#        if [ $BRANCH = "release" ]
+#        then
+#            ENVIRONMENT=prod
+#        fi   
+#        RESOURCE_GROUP=db-api-radix-${ENVIRONMENT}
+#
+#        INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
+#        BODY="{\"secretValue\":${INSTRUMENTATIONKEY}}"
+#        SECRET_NAME=APPINSIGHTS_INSTRUMENTATIONKEY
+#        curl -i -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
+#
+#        CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
+#        BODY="{\"secretValue\":${CONNECTION_STRING}}"
+#        SECRET_NAME=AZURE_STORAGE_CONNECTION_STRING
+#        curl -i -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
+    - name: Get instrumentation key and connection string
+      id: getSecrets
       run: |
         BRANCH=${GITHUB_REF##*/} 
         ENVIRONMENT=qa
         if [ $BRANCH = "release" ]
         then
             ENVIRONMENT=prod
-        fi   
+        fi
+        
         RESOURCE_GROUP=db-api-radix-${ENVIRONMENT}
-
-        # INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
-        BODY="{\"secretValue\":${{ steps.getInstrumentationKey.outputs.qa }}}"
-        SECRET_NAME=APPINSIGHTS_INSTRUMENTATIONKEY
-        curl -i -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
-
+        INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
         CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
-        BODY="{\"secretValue\":${CONNECTION_STRING}}"
-        SECRET_NAME=AZURE_STORAGE_CONNECTION_STRING
-        curl -i -f -X PUT "https://server-radix-api-prod.playground.radix.equinor.com/api/v1/applications/${APP_NAME}/environments/${ENVIRONMENT}/components/${COMPONENT_NAME}/secrets/${SECRET_NAME}" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -d ${BODY}
+        
+        echo ::set-output name=instrumentationKey::$(INSTRUMENTATIONKEY)
+        echo ::set-output name=connectionString::$(CONNECTION_STRING)
+        
+        echo ::add-mask::${INSTRUMENTATIONKEY}
+        echo ::add-mask::${CONNECTION_STRING}
+    - name: Set instrumentation key as secret
+      uses: equinor/radix-github-actions@master
+      env:
+        APP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
+      with:
+        args: "set environment-secret --context playground -b ${GITHUB_REF##*/} --component api -s APPINSIGHTS_INSTRUMENTATIONKEY -v ${{ steps.getSecrets.outputs.instrumentationKey }}"
+    - name: Set connection string as secret
+      uses: equinor/radix-github-actions@master
+      env:
+        APP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
+      with:
+        args: "set environment-secret --context playground -b ${GITHUB_REF##*/} --component api -s AZURE_STORAGE_CONNECTION_STRING -v ${{ steps.getSecrets.outputs.connectionString }}"
