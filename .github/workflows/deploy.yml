@@ -83,6 +83,9 @@ jobs:
         
         echo ::add-mask::${INSTRUMENTATIONKEY}
         echo ::add-mask::${CONNECTION_STRING}
+    - name: Echo value
+      run: |
+        echo ${{ steps.getSecrets.outputs.instrumentationKey }}
     - name: Set instrumentation key as secret
       uses: equinor/radix-github-actions@master
       env:
