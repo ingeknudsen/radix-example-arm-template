@@ -43,7 +43,8 @@ jobs:
     - name: Set instrumentation key as secret
       uses: equinor/radix-github-actions@master
       with:
-        args: "set environment-secret --context playground -b ${GITHUB_REF##*/} --component api -s APPINSIGHTS_INSTRUMENTATIONKEY -v ${{ steps.getSecrets.outputs.instrumentationKey }}"
+        args:  >
+          "set environment-secret --context playground -b ${GITHUB_REF##*/} --component api -s APPINSIGHTS_INSTRUMENTATIONKEY -v ${{ steps.getSecrets.outputs.instrumentationKey }}"
     - name: Set connection string as secret
       uses: equinor/radix-github-actions@master
       with:
