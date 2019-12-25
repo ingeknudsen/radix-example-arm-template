@@ -53,4 +53,10 @@ jobs:
     - name: Set connection string as secret
       uses: equinor/radix-github-actions@master
       with:
-        args: "set environment-secret --context playground -b ${GITHUB_REF##*/} --component api -s AZURE_STORAGE_CONNECTION_STRING -v ${{ steps.getSecrets.outputs.connectionString }}"
+        args:  >
+          "set environment-secret"
+          "--context playground"
+          "-b ${GITHUB_REF##*/}"
+          "--component api"
+          "-s AZURE_STORAGE_CONNECTION_STRING"
+          "-v ${{ steps.getSecrets.outputs.connectionString }}"
