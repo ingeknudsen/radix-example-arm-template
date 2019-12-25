@@ -1,6 +1,6 @@
 # radix-example-arm-template
 
-## Required changes to Radix
+## Required changes to Radix.
 
 There need to be a service principle or serviceaccount with the following (cluster)roles in cluster: `radix-platform-user`,`radix-app-admin`, `radix-platform-user-rr-radix-example-arm-template`, `radix-app-adm-api`
 
