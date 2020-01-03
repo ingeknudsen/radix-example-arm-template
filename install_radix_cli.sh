@@ -9,4 +9,3 @@ VERSION=$(
 wget https://github.com/equinor/radix-cli/releases/download/v${VERSION}/radix-cli_${VERSION}_Linux_x86_64.tar.gz
 
 tar zxvf radix-cli_${VERSION}_Linux_x86_64.tar.gz
-mv rx /usr/local/bin
