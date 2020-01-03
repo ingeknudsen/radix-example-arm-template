@@ -65,7 +65,6 @@ jobs:
             -s AZURE_STORAGE_CONNECTION_STRING
             -v '${{ steps.getSecrets.outputs.connectionString }}'
       - name: Run multiple CLI commands in one go
-        id: checkListApplications
         run: |
           sh ./hack/install_radix_cli.sh
           APPLICATIONS=$(./rx --token-environment --context playground list applications)
@@ -79,3 +78,12 @@ jobs:
 
           echo 'Output from APPLICATIONS2:'
           echo ${APPLICATIONS2}
+      - name: Is Radix CLI still installed
+        run: |
+          APPLICATIONS=$(./rx --token-environment --context playground list applications)
+
+          echo 'Output from APPLICATIONS:'
+          echo ${APPLICATIONS}
+          echo ''
+          echo ''
+          echo ''
