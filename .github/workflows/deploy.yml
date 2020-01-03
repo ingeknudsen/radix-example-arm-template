@@ -33,13 +33,14 @@ jobs:
         
         RESOURCE_GROUP=db-api-radix-${ENVIRONMENT}
         INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
-        CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
+        # CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
+        CONNECTION_STRING="DefaultEndpointsProtocol=my-prot;AccountName=mylongaccountname678i;AccountKey=MySpecialAccountKey+ABCdefgHIJXqlqEsy+ACBCEF+ABCDEFKIi8Zq5xsHXYZ/ABCDahKC7RAjKvu0RXYZ=="
         
         echo ::set-output name=instrumentationKey::$(echo ${INSTRUMENTATIONKEY})
         echo ::set-output name=connectionString::$(echo ${CONNECTION_STRING})
         
         echo ::add-mask::${INSTRUMENTATIONKEY}
-        echo ::add-mask::${CONNECTION_STRING}
+        #echo ::add-mask::${CONNECTION_STRING}
     - name: Set instrumentation key as secret
       uses: equinor/radix-github-actions@master
       with:
