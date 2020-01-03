@@ -64,6 +64,15 @@ jobs:
             --component api
             -s AZURE_STORAGE_CONNECTION_STRING
             -v '${{ steps.getSecrets.outputs.connectionString }}'
+      - name: List applications
+        id: listApplications
+        uses: equinor/radix-github-actions@master
+        with:
+          args: >
+            list applications
+            --context playground
+      - name: Get the output list of applications
+        run: echo "${{ steps.listApplications.outputs.result }}"
       - name: Run multiple CLI commands in one go
         run: |
           sh ./hack/install_radix_cli.sh
