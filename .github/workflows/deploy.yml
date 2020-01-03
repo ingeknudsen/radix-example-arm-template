@@ -68,7 +68,7 @@ jobs:
       id: checkListApplications	
       run: |
         sh install_radix_cli.sh
-        APPLICATIONS=$(rx --token-environment --context playground list applications)	
-        APPLICATIONS2=$(rx --token-environment --context playground list applications)	
+        APPLICATIONS=$(./rx --token-environment --context playground list applications)	
+        APPLICATIONS2=$(./rx --token-environment --context playground list applications)	
         echo ${APPLICATIONS}	
         echo ${APPLICATIONS2}
