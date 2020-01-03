@@ -17,6 +17,15 @@ jobs:
       - uses: Azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Get environment from branch
+        id: getEnvironment
+        uses: equinor/radix-github-actions@master
+        with:
+          args: >
+            get-config branch-environment
+            -b ${GITHUB_REF##*/}
+      - name: Print the environment
+        run: echo "${{ steps.getEnvironment.outputs.result }}"
       - name: Build and deploy API on Radix
         uses: equinor/radix-github-actions@master
         with:
@@ -28,14 +37,7 @@ jobs:
       - name: Get instrumentation key and connection string
         id: getSecrets
         run: |
-          BRANCH=${GITHUB_REF##*/} 
-          ENVIRONMENT=qa
-          if [ $BRANCH = "release" ]
-          then
-              ENVIRONMENT=prod
-          fi
-
-          RESOURCE_GROUP=db-api-radix-${ENVIRONMENT}
+          RESOURCE_GROUP=db-api-radix-${{ steps.getEnvironment.outputs.result }}
           INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
           CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
 
@@ -64,15 +66,6 @@ jobs:
             --component api
             -s AZURE_STORAGE_CONNECTION_STRING
             -v '${{ steps.getSecrets.outputs.connectionString }}'
-      - name: List applications
-        id: listApplications
-        uses: equinor/radix-github-actions@master
-        with:
-          args: >
-            list applications
-            --context playground
-      - name: Get the output list of applications
-        run: echo "${{ steps.listApplications.outputs.result }}"
       - name: Run multiple CLI commands in one go
         run: |
           sh ./hack/install_radix_cli.sh
