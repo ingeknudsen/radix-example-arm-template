@@ -72,7 +72,7 @@ jobs:
             list applications
             --context playground
       - name: Get the output list of applications
-        run: echo "${{ steps.listApplications.outputs.result }}"
+        run: echo "${{ steps.listApplications.outputs }}"
       - name: Run multiple CLI commands in one go
         run: |
           sh ./hack/install_radix_cli.sh
