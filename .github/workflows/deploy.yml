@@ -60,4 +60,4 @@ jobs:
           -b ${GITHUB_REF##*/}
           --component api
           -s AZURE_STORAGE_CONNECTION_STRING
-          -v "DefaultEndpointsProtocol=my-prot;AccountName=mylongaccountname678i;AccountKey=MySpecialAccountKey+ABCdefgHIJXqlqEsy+ACBCEF+ABCDEFKIi8Zq5xsHXYZ/ABCDahKC7RAjKvu0RXYZ=="
+          -v "DefaultEndpointsProtocol=my-protAccountNamemylongaccountname678iAccountKeyMySpecialAccountKeyABCdefgHIJXqlqEsyACBCEFABCDEFKIi8Zq5xsHXYZABCDahKC7RAjKvu0RXYZ"
