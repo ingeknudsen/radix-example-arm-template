@@ -13,62 +13,69 @@ jobs:
     env:
       APP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
     steps:
-    - uses: actions/checkout@v1
-    - uses: Azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Build and deploy API on Radix
-      uses: equinor/radix-github-actions@master
-      with:
-        args:  >
-          build-deploy
-          --context playground
-          -b ${GITHUB_REF##*/}
-          -f
-    - name: Get instrumentation key and connection string
-      id: getSecrets
-      run: |
-        BRANCH=${GITHUB_REF##*/} 
-        ENVIRONMENT=qa
-        if [ $BRANCH = "release" ]
-        then
-            ENVIRONMENT=prod
-        fi
-        
-        RESOURCE_GROUP=db-api-radix-${ENVIRONMENT}
-        INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
-        CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
-        
-        echo ::set-output name=instrumentationKey::$(echo ${INSTRUMENTATIONKEY})
-        echo ::set-output name=connectionString::$(echo ${CONNECTION_STRING})
-        
-        echo ::add-mask::${INSTRUMENTATIONKEY}
-        echo ::add-mask::${CONNECTION_STRING}
-    - name: Set instrumentation key as secret
-      uses: equinor/radix-github-actions@master
-      with:
-        args:  >
-          set environment-secret
-          --context playground
-          -b ${GITHUB_REF##*/}
-          --component api
-          -s APPINSIGHTS_INSTRUMENTATIONKEY
-          -v '${{ steps.getSecrets.outputs.instrumentationKey }}'
-    - name: Set connection string as secret
-      uses: equinor/radix-github-actions@master
-      with:
-        args:  >
-          set environment-secret
-          --context playground
-          -b ${GITHUB_REF##*/}
-          --component api
-          -s AZURE_STORAGE_CONNECTION_STRING
-          -v '${{ steps.getSecrets.outputs.connectionString }}'
-    - name: Run multiple CLI commands in one go
-      id: checkListApplications	
-      run: |
-        sh install_radix_cli.sh
-        APPLICATIONS=$(./rx --token-environment --context playground list applications)	
-        APPLICATIONS2=$(./rx --token-environment --context playground list applications)	
-        echo ${APPLICATIONS}	
-        echo ${APPLICATIONS2}
+      - uses: actions/checkout@v1
+      - uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Build and deploy API on Radix
+        uses: equinor/radix-github-actions@master
+        with:
+          args: >
+            build-deploy
+            --context playground
+            -b ${GITHUB_REF##*/}
+            -f
+      - name: Get instrumentation key and connection string
+        id: getSecrets
+        run: |
+          BRANCH=${GITHUB_REF##*/} 
+          ENVIRONMENT=qa
+          if [ $BRANCH = "release" ]
+          then
+              ENVIRONMENT=prod
+          fi
+
+          RESOURCE_GROUP=db-api-radix-${ENVIRONMENT}
+          INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
+          CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
+
+          echo ::set-output name=instrumentationKey::$(echo ${INSTRUMENTATIONKEY})
+          echo ::set-output name=connectionString::$(echo ${CONNECTION_STRING})
+
+          echo ::add-mask::${INSTRUMENTATIONKEY}
+          echo ::add-mask::${CONNECTION_STRING}
+      - name: Set instrumentation key as secret
+        uses: equinor/radix-github-actions@master
+        with:
+          args: >
+            set environment-secret
+            --context playground
+            -b ${GITHUB_REF##*/}
+            --component api
+            -s APPINSIGHTS_INSTRUMENTATIONKEY
+            -v '${{ steps.getSecrets.outputs.instrumentationKey }}'
+      - name: Set connection string as secret
+        uses: equinor/radix-github-actions@master
+        with:
+          args: >
+            set environment-secret
+            --context playground
+            -b ${GITHUB_REF##*/}
+            --component api
+            -s AZURE_STORAGE_CONNECTION_STRING
+            -v '${{ steps.getSecrets.outputs.connectionString }}'
+      - name: Run multiple CLI commands in one go
+        id: checkListApplications
+        run: |
+          sh ./hack/install_radix_cli.sh
+          APPLICATIONS=$(./rx --token-environment --context playground list applications)
+          APPLICATIONS2=$(./rx --token-environment --context playground list applications)
+
+          echo 'Output from APPLICATIONS:'
+          echo ${APPLICATIONS}
+          echo ''
+          echo ''
+          echo ''
+
+          echo 'Output from APPLICATIONS2:'
+          echo ${APPLICATIONS2}
