@@ -20,7 +20,7 @@ jobs:
     - name: Deploy API to Radix
       uses: equinor/radix-github-actions@master
       with:
-        args: "build-deploy --context playground -b ${GITHUB_REF##*/}"
+        args: "build-deploy --context playground -b ${GITHUB_REF##*/} -f"
     - name: Get instrumentation key and connection string
       id: getSecrets
       run: |
