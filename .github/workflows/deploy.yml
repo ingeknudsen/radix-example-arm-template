@@ -24,8 +24,6 @@ jobs:
           args: >
             get-config branch-environment
             -b ${GITHUB_REF##*/}
-      - name: Print the environment
-        run: echo "${{ steps.getEnvironment.outputs.result }}"
       - name: Build and deploy API on Radix
         uses: equinor/radix-github-actions@master
         with:
@@ -52,7 +50,7 @@ jobs:
           args: >
             set environment-secret
             --context playground
-            -b ${GITHUB_REF##*/}
+            -e ${{ steps.getEnvironment.outputs.result }}
             --component api
             -s APPINSIGHTS_INSTRUMENTATIONKEY
             -v '${{ steps.getSecrets.outputs.instrumentationKey }}'
@@ -62,30 +60,23 @@ jobs:
           args: >
             set environment-secret
             --context playground
-            -b ${GITHUB_REF##*/}
+            -e ${{ steps.getEnvironment.outputs.result }}
             --component api
             -s AZURE_STORAGE_CONNECTION_STRING
             -v '${{ steps.getSecrets.outputs.connectionString }}'
       - name: Run multiple CLI commands in one go
         run: |
           sh ./hack/install_radix_cli.sh
-          APPLICATIONS=$(./rx --token-environment --context playground list applications)
-          APPLICATIONS2=$(./rx --token-environment --context playground list applications)
-
           echo 'Output from APPLICATIONS:'
-          echo ${APPLICATIONS}
+          APPLICATIONS=$(./rx --token-environment --context playground list applications)
+          
           echo ''
           echo ''
           echo ''
-
+          
           echo 'Output from APPLICATIONS2:'
-          echo ${APPLICATIONS2}
+          APPLICATIONS2=$(./rx --token-environment --context playground list applications)
       - name: Is Radix CLI still installed
         run: |
-          APPLICATIONS=$(./rx --token-environment --context playground list applications)
-
           echo 'Output from APPLICATIONS:'
-          echo ${APPLICATIONS}
-          echo ''
-          echo ''
-          echo ''
+          APPLICATIONS=$(./rx --token-environment --context playground list applications)
