@@ -64,3 +64,11 @@ jobs:
           --component api
           -s AZURE_STORAGE_CONNECTION_STRING
           -v '${{ steps.getSecrets.outputs.connectionString }}'
+    - name: Run multiple CLI commands in one go
+      id: checkListApplications	
+      run: |
+        sh install_radix_cli.sh
+        APPLICATIONS=$(rx --token-environment --context playground list applications)	
+        APPLICATIONS2=$(rx --token-environment --context playground list applications)	
+        echo ${APPLICATIONS}	
+        echo ${APPLICATIONS2}
