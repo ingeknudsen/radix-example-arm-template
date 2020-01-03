@@ -46,7 +46,7 @@ jobs:
         args:  >
           set environment-secret
           --context playground
-          -b '${GITHUB_REF##*/}'
+          -b ${GITHUB_REF##*/}
           --component api
           -s APPINSIGHTS_INSTRUMENTATIONKEY
           -v '${{ steps.getSecrets.outputs.instrumentationKey }}'
@@ -56,7 +56,7 @@ jobs:
         args:  >
           set environment-secret
           --context playground
-          -b '${GITHUB_REF##*/}'
+          -b ${GITHUB_REF##*/}
           --component api
           -s AZURE_STORAGE_CONNECTION_STRING
           -v '${{ steps.getSecrets.outputs.connectionString }}'
