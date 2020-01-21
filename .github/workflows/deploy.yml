@@ -22,7 +22,7 @@ jobs:
         with:
           args: >
             build-deploy
-            --context playground
+            --cluster iknu-test-machine-user
             -b ${GITHUB_REF##*/}
             -f
       - name: Get instrumentation key and connection string
@@ -49,7 +49,7 @@ jobs:
         with:
           args: >
             set environment-secret
-            --context playground
+            --cluster iknu-test-machine-user
             -b ${GITHUB_REF##*/}
             --component api
             -s APPINSIGHTS_INSTRUMENTATIONKEY
@@ -59,7 +59,7 @@ jobs:
         with:
           args: >
             set environment-secret
-            --context playground
+            --cluster iknu-test-machine-user
             -b ${GITHUB_REF##*/}
             --component api
             -s AZURE_STORAGE_CONNECTION_STRING
@@ -68,8 +68,8 @@ jobs:
         id: checkListApplications
         run: |
           sh ./hack/install_radix_cli.sh
-          APPLICATIONS=$(./rx --token-environment --context playground list applications)
-          APPLICATIONS2=$(./rx --token-environment --context playground list applications)
+          APPLICATIONS=$(./rx --token-environment --cluster iknu-test-machine-user list applications)
+          APPLICATIONS2=$(./rx --token-environment --cluster iknu-test-machine-user list applications)
 
           echo 'Output from APPLICATIONS:'
           echo ${APPLICATIONS}
