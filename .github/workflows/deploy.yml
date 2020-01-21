@@ -17,6 +17,13 @@ jobs:
       - uses: Azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Get environment from branch
+        id: getEnvironment
+        uses: equinor/radix-github-actions@master
+        with:
+          args: >
+            get-config branch-environment
+            -b ${GITHUB_REF##*/}
       - name: Build and deploy API on Radix
         uses: equinor/radix-github-actions@master
         with:
@@ -28,14 +35,7 @@ jobs:
       - name: Get instrumentation key and connection string
         id: getSecrets
         run: |
-          BRANCH=${GITHUB_REF##*/} 
-          ENVIRONMENT=qa
-          if [ $BRANCH = "release" ]
-          then
-              ENVIRONMENT=prod
-          fi
-
-          RESOURCE_GROUP=db-api-radix-${ENVIRONMENT}
+          RESOURCE_GROUP=db-api-radix-${{ steps.getEnvironment.outputs.result }}
           INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
           CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
 
@@ -50,7 +50,7 @@ jobs:
           args: >
             set environment-secret
             --cluster iknu-test-machine-user
-            -b ${GITHUB_REF##*/}
+            -e ${{ steps.getEnvironment.outputs.result }}
             --component api
             -s APPINSIGHTS_INSTRUMENTATIONKEY
             -v '${{ steps.getSecrets.outputs.instrumentationKey }}'
@@ -60,22 +60,23 @@ jobs:
           args: >
             set environment-secret
             --cluster iknu-test-machine-user
-            -b ${GITHUB_REF##*/}
+            -e ${{ steps.getEnvironment.outputs.result }}
             --component api
             -s AZURE_STORAGE_CONNECTION_STRING
             -v '${{ steps.getSecrets.outputs.connectionString }}'
       - name: Run multiple CLI commands in one go
-        id: checkListApplications
         run: |
           sh ./hack/install_radix_cli.sh
-          APPLICATIONS=$(./rx --token-environment --cluster iknu-test-machine-user list applications)
-          APPLICATIONS2=$(./rx --token-environment --cluster iknu-test-machine-user list applications)
-
           echo 'Output from APPLICATIONS:'
-          echo ${APPLICATIONS}
+          APPLICATIONS=$(./rx --token-environment --cluster iknu-test-machine-user list applications)
+
           echo ''
           echo ''
           echo ''
 
           echo 'Output from APPLICATIONS2:'
-          echo ${APPLICATIONS2}
+          APPLICATIONS2=$(./rx --token-environment --cluster iknu-test-machine-user list applications)
+      - name: Is Radix CLI still installed
+        run: |
+          echo 'Output from APPLICATIONS:'
+          APPLICATIONS=$(./rx --token-environment --cluster iknu-test-machine-user list applications)
