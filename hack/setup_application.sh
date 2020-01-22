@@ -28,6 +28,18 @@ RESPONSE=$(curl -X POST -H "Content-Type: application/json" -u ${GH_USERNAME}:${
     https://api.github.com/repos/$REPOSITORY_PATH/keys \
     -d "$PAYLOAD" 2>&1)
 
+echo "Await reconciliation"
+sleep 3
+
+echo "Get machine user token"
+SERVICE_ACCOUNT_TOKEN=$(rx get application \
+    --from-config \
+    --cluster iknu-test-machine-user | jq .registration.serviceAccountToken | tr -d '"')
+
+echo "Copy the machine user token on the app admin page. The token is ${SERVICE_ACCOUNT_TOKEN:0:10}...."
+echo "See https://github.community/t5/GitHub-Actions/Github-Apps-to-add-secrets/td-p/28259/page/2 for when "
+echo "github secret can be modified through the API"
+
 echo ""
 read -p "Delete application again? (Y/n) " -n 1 -r
 if [[ "$REPLY" =~ (N|n) ]]; then
@@ -38,4 +50,4 @@ fi
 
 rx delete application \
     --from-config \
-    --context playground
+    --cluster iknu-test-machine-user
