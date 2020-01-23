@@ -1,4 +1,4 @@
-# radix-example-arm-template.
+# radix-example-arm-template
 
 ## Required changes to Radix
 
