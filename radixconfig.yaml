@@ -13,11 +13,6 @@ spec:
   components:
   - name: "api"
     image: docker.pkg.github.com/equinor/radix-example-arm-template/api:{imageTagName}
-    environmentConfig:
-    - environment: qa
-      imageTagName: master-latest
-    - environment: prod
-      imageTagName: release-latest
     ports:
     - name: http
       port: 3000
@@ -27,6 +22,7 @@ spec:
       - APPINSIGHTS_INSTRUMENTATIONKEY
     environmentConfig:
     - environment: qa
+      imageTagName: master-latest
       horizontalScaling:
         minReplicas: 1
         maxReplicas: 3
@@ -39,6 +35,7 @@ spec:
           memory: "250M"
           cpu: "500m"
     - environment: prod
+      imageTagName: release-latest
       horizontalScaling:
         minReplicas: 2
         maxReplicas: 5
