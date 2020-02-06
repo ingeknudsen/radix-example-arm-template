@@ -14,6 +14,13 @@ jobs:
       APP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
     steps:
       - uses: actions/checkout@v1
+      - name: build api
+        run: |
+          docker build -t docker.pkg.github.com/equinor/radix-example-arm-template/api:${GITHUB_REF##*/}-latest ./todoapi/
+      - name: Push the image to GPR
+        run: |
+          echo ${{ secrets.PRIVATE_TOKEN }} | docker login docker.pkg.github.com -u JoakimHagen --password-stdin
+          docker push docker.pkg.github.com/equinor/radix-example-arm-template/api:${GITHUB_REF##*/}-latest
       - uses: Azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
