@@ -50,3 +50,7 @@ spec:
         limits:
           memory: "250M"
           cpu: "500m"
+  privateImageHubs:
+    docker.pkg.github.com:
+      username: JoakimHagen
+      email: johagen@equinor.com
