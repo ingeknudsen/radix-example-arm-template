@@ -42,8 +42,13 @@ if [[ -z "$PERSONAL_ACCESS_TOKEN" ]]; then
     exit 1
 fi
 
+echo -e "   -  BRANCH                    : $BRANCH"
+echo -e "   -  SHA                       : $SHA"
+
 # Will only have dynamic tagging for prod environment
 if [[ "$BRANCH" == "$PROD_BRANCH" ]]; then
+    echo -e "Modify tag for production environment"
+
     # Install pre-requisite
     python -m pip install --user ruamel.yaml
     python hack/modifyTag.py "${COMPONENT}" "${BRANCH}" "${BRANCH}-${SHA}"
