@@ -14,6 +14,23 @@ jobs:
       APP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
     steps:
       - uses: actions/checkout@v1
+      - name: Build API component
+        run: |
+          docker build -t docker.pkg.github.com/equinor/radix-example-arm-template/api:${GITHUB_REF##*/}-latest ./todoapi/
+      - name: Push the image to GPR
+        run: |
+          echo ${{ secrets.PRIVATE_TOKEN }} | docker login docker.pkg.github.com -u JoakimHagen --password-stdin
+          docker push docker.pkg.github.com/equinor/radix-example-arm-template/api:${GITHUB_REF##*/}-latest
+      - name: Prepare for committing new tag to radix config on master
+        uses: actions/checkout@v2-beta
+        with:
+          ref: master
+      - name: Modify radixconfig tag for branch and commit
+        env:
+          BRANCH: ${GITHUB_REF##*/}
+          SHA8: ${GITHUB_SHA::8}
+        run: |
+          BRANCH=$BRANCH SHA=$SHA8 GITHUB_USER="ingeknudsen" GITHUB_EMAIL="ingeknudsen@users.noreply.github.com" GITHUB_REPO="${{ github.repository }}" PERSONAL_ACCESS_TOKEN=${{ secrets.PRIVATE_TOKEN }} ./hack/modify_tag_for_prod.sh
       - uses: Azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -24,13 +41,14 @@ jobs:
           args: >
             get-config branch-environment
             -b ${GITHUB_REF##*/}
-      - name: Build and deploy API on Radix
+      - name: Deploy API on Radix
         uses: equinor/radix-github-actions@master
         with:
           args: >
-            build-deploy
-            --context playground
-            -b ${GITHUB_REF##*/}
+            trigger
+            deploy
+            --context development
+            -e ${{ steps.getEnvironment.outputs.result }}
             -f
       - name: Get instrumentation key and connection string
         id: getSecrets
@@ -49,7 +67,7 @@ jobs:
         with:
           args: >
             set environment-secret
-            --context playground
+            --context development
             -e ${{ steps.getEnvironment.outputs.result }}
             --component api
             -s APPINSIGHTS_INSTRUMENTATIONKEY
@@ -59,24 +77,8 @@ jobs:
         with:
           args: >
             set environment-secret
-            --context playground
+            --context development
             -e ${{ steps.getEnvironment.outputs.result }}
             --component api
             -s AZURE_STORAGE_CONNECTION_STRING
             -v '${{ steps.getSecrets.outputs.connectionString }}'
-      - name: Run multiple CLI commands in one go
-        run: |
-          sh ./hack/install_radix_cli.sh
-          echo 'Output from APPLICATIONS:'
-          APPLICATIONS=$(./rx --token-environment --context playground list applications)
-          
-          echo ''
-          echo ''
-          echo ''
-          
-          echo 'Output from APPLICATIONS2:'
-          APPLICATIONS2=$(./rx --token-environment --context playground list applications)
-      - name: Is Radix CLI still installed
-        run: |
-          echo 'Output from APPLICATIONS:'
-          APPLICATIONS=$(./rx --token-environment --context playground list applications)
