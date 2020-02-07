@@ -42,6 +42,7 @@ if [[ -z "$PERSONAL_ACCESS_TOKEN" ]]; then
     exit 1
 fi
 
+echo -e "   -  PROD_BRANCH               : $PROD_BRANCH"
 echo -e "   -  BRANCH                    : $BRANCH"
 echo -e "   -  SHA                       : $SHA"
 

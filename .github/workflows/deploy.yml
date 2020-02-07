@@ -27,10 +27,9 @@ jobs:
           ref: master
       - name: Modify radixconfig tag for branch and commit
         env:
-          BRANCH: ${GITHUB_REF##*/}
           SHA8: ${GITHUB_SHA::8}
         run: |
-          BRANCH=$BRANCH SHA=$SHA8 GITHUB_USER="ingeknudsen" GITHUB_EMAIL="ingeknudsen@users.noreply.github.com" GITHUB_REPO="${{ github.repository }}" PERSONAL_ACCESS_TOKEN=${{ secrets.PRIVATE_TOKEN }} ./hack/modify_tag_for_prod.sh
+          BRANCH=${GITHUB_REF##*/} SHA=$SHA8 GITHUB_USER="ingeknudsen" GITHUB_EMAIL="ingeknudsen@users.noreply.github.com" GITHUB_REPO="${{ github.repository }}" PERSONAL_ACCESS_TOKEN=${{ secrets.PRIVATE_TOKEN }} ./hack/modify_tag_for_prod.sh
       - uses: Azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
