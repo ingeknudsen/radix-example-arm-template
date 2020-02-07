@@ -35,7 +35,7 @@ spec:
           memory: 250M
           cpu: 500m
     - environment: prod
-      imageTagName: release-${GITHUB_SHA::8}
+      imageTagName: release-37f8526b
       horizontalScaling:
         minReplicas: 2
         maxReplicas: 5
