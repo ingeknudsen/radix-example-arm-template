@@ -3,8 +3,8 @@ name: CI
 on:
   push:
     branches:
-      - master_disabled
-      - release_disabled
+      - master
+      - release
 
 jobs:
   build:
@@ -14,13 +14,29 @@ jobs:
       APP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
     steps:
       - uses: actions/checkout@v1
-      - name: build api
+      - name: Build API component
         run: |
           docker build -t docker.pkg.github.com/equinor/radix-example-arm-template/api:${GITHUB_REF##*/}-latest ./todoapi/
       - name: Push the image to GPR
         run: |
           echo ${{ secrets.PRIVATE_TOKEN }} | docker login docker.pkg.github.com -u JoakimHagen --password-stdin
           docker push docker.pkg.github.com/equinor/radix-example-arm-template/api:${GITHUB_REF##*/}-latest
+      - name: Prepare for committing new tag to radix config on master
+        uses: actions/checkout@v2-beta
+        with:
+          ref: master
+      - name: Modify radixconfig tag for branch (if relevant)
+        run: |
+          # Install pre-requisite
+          python -m pip install --user ruamel.yaml
+          python hack/modifyTag.py api ${GITHUB_REF##*/} ${GITHUB_REF##*/}-${{ github.sha }}
+      - name: Commit radixconfig
+        run: |
+          git config --global user.name 'ingeknudsen'
+          git config --global user.email 'ingeknudsen@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.PRIVATE_TOKEN }}@github.com/${{ github.repository }}
+          git commit -am ${GITHUB_REF##*/}-${{ github.sha }}
+          git push origin HEAD:master
       - uses: Azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}

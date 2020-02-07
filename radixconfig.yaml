@@ -11,7 +11,7 @@ spec:
     build:
       from: release
   components:
-  - name: "api"
+  - name: api
     image: docker.pkg.github.com/equinor/radix-example-arm-template/api:{imageTagName}
     ports:
     - name: http
