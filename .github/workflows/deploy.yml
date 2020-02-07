@@ -12,15 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     env:
       APP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
+      IMAGE_TAG: ${GITHUB_REF##*/}-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Override image tag for prod environment
+        if: github.ref == 'refs/heads/release'
+        run: |
+          echo ::set-env name=IMAGE_TAG::${GITHUB_REF##*/}-${GITHUB_SHA::8}
       - name: Build API component
         run: |
-          docker build -t docker.pkg.github.com/equinor/radix-example-arm-template/api:${GITHUB_REF##*/}-latest ./todoapi/
+          docker build -t docker.pkg.github.com/equinor/radix-example-arm-template/api:$IMAGE_TAG ./todoapi/
       - name: Push the image to GPR
         run: |
           echo ${{ secrets.PRIVATE_TOKEN }} | docker login docker.pkg.github.com -u JoakimHagen --password-stdin
-          docker push docker.pkg.github.com/equinor/radix-example-arm-template/api:${GITHUB_REF##*/}-latest
+          docker push docker.pkg.github.com/equinor/radix-example-arm-template/api:$IMAGE_TAG
       - name: Prepare for committing new tag to radix config on master
         uses: actions/checkout@v2-beta
         with:
@@ -30,12 +35,12 @@ jobs:
         run: |
           # Install pre-requisite
           python -m pip install --user ruamel.yaml
-          python hack/modifyTag.py api ${GITHUB_REF##*/} ${GITHUB_REF##*/}-${GITHUB_SHA::8}
+          python hack/modifyTag.py api ${GITHUB_REF##*/} $IMAGE_TAG
 
           git config --global user.name 'ingeknudsen'
           git config --global user.email 'ingeknudsen@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.PRIVATE_TOKEN }}@github.com/${{ github.repository }}
-          git commit -am ${GITHUB_REF##*/}-${GITHUB_SHA::8}
+          git commit -am $IMAGE_TAG
           git push origin HEAD:master
       - uses: Azure/login@v1
         with:
