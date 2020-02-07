@@ -25,18 +25,12 @@ jobs:
         uses: actions/checkout@v2-beta
         with:
           ref: master
-      - name: Modify radixconfig tag for branch (if relevant)
+      - name: Modify radixconfig tag for branch and commit
+        env:
+          BRANCH: ${GITHUB_REF##*/}
+          SHA8: ${GITHUB_SHA::8}
         run: |
-          # Install pre-requisite
-          python -m pip install --user ruamel.yaml
-          python hack/modifyTag.py api ${GITHUB_REF##*/} ${GITHUB_REF##*/}-${{ github.sha }}
-      - name: Commit radixconfig
-        run: |
-          git config --global user.name 'ingeknudsen'
-          git config --global user.email 'ingeknudsen@users.noreply.github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.PRIVATE_TOKEN }}@github.com/${{ github.repository }}
-          git commit -am ${GITHUB_REF##*/}-${{ github.sha }}
-          git push origin HEAD:master
+          BRANCH=$BRANCH SHA=$SHA8 GITHUB_USER="ingeknudsen" GITHUB_EMAIL="ingeknudsen@users.noreply.github.com" GITHUB_REPO="${{ github.repository }}" PERSONAL_ACCESS_TOKEN=${{ secrets.PRIVATE_TOKEN }} ./hack/modify_tag_for_prod.sh
       - uses: Azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
