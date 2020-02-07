@@ -35,7 +35,7 @@ spec:
           memory: 250M
           cpu: 500m
     - environment: prod
-      imageTagName: release-37f8526b
+      imageTagName: release-39f1a082
       horizontalScaling:
         minReplicas: 2
         maxReplicas: 5
