@@ -3,8 +3,8 @@ name: CI
 on:
   push:
     branches:
-      - master
-      - release
+      - master_disabled
+      - release_disabled
 
 jobs:
   build:
