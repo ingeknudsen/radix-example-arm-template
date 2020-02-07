@@ -18,8 +18,8 @@ spec:
       port: 3000
     public: true
     secrets:
-      - AZURE_STORAGE_CONNECTION_STRING
-      - APPINSIGHTS_INSTRUMENTATIONKEY
+    - AZURE_STORAGE_CONNECTION_STRING
+    - APPINSIGHTS_INSTRUMENTATIONKEY
     environmentConfig:
     - environment: qa
       imageTagName: master-latest
@@ -29,24 +29,24 @@ spec:
       monitoring: false
       resources:
         requests:
-          memory: "100M"
-          cpu: "50m"
+          memory: 100M
+          cpu: 50m
         limits:
-          memory: "250M"
-          cpu: "500m"
+          memory: 250M
+          cpu: 500m
     - environment: prod
-      imageTagName: release-latest
+      imageTagName: release-${GITHUB_SHA::8}
       horizontalScaling:
         minReplicas: 2
         maxReplicas: 5
       monitoring: false
       resources:
         requests:
-          memory: "100M"
-          cpu: "50m"
+          memory: 100M
+          cpu: 50m
         limits:
-          memory: "250M"
-          cpu: "500m"
+          memory: 250M
+          cpu: 500m
   privateImageHubs:
     docker.pkg.github.com:
       username: ingeknudsen
