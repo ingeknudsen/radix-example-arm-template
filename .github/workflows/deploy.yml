@@ -12,13 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       APP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.K8S_CREDENTIALS }}
-      IMAGE_TAG: ${GITHUB_REF##*/}-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Set default image tag
+        run: |
+          echo ::set-env name=IMAGE_TAG::$(echo ${GITHUB_REF##*/}-latest)
       - name: Override image tag for prod environment
         if: github.ref == 'refs/heads/release'
         run: |
-          echo ::set-env name=IMAGE_TAG::${GITHUB_REF##*/}-${GITHUB_SHA::8}
+          echo ::set-env name=IMAGE_TAG::$(echo ${GITHUB_REF##*/}-${GITHUB_SHA::8})
       - name: Build API component
         run: |
           docker build -t docker.pkg.github.com/equinor/radix-example-arm-template/api:$IMAGE_TAG ./todoapi/
