@@ -1,4 +1,4 @@
-# radix-example-arm-template
+# Radix example: Deploy-only
 
 ## Required changes to Radix
 
