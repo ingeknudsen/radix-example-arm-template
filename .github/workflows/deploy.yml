@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - master_disabled
       - release_disabled
 
 jobs:
@@ -44,9 +44,9 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.PRIVATE_TOKEN }}@github.com/${{ github.repository }}
           git commit -am $IMAGE_TAG
           git push origin HEAD:master
-      # - uses: Azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Get environment from branch
         id: getEnvironment
         uses: equinor/radix-github-actions@master
@@ -63,35 +63,35 @@ jobs:
             --context development
             -e ${{ steps.getEnvironment.outputs.result }}
             -f
-      # - name: Get instrumentation key and connection string
-      #   id: getSecrets
-      #   run: |
-      #     RESOURCE_GROUP=db-api-radix-${{ steps.getEnvironment.outputs.result }}
-      #     INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
-      #     CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
+      - name: Get instrumentation key and connection string
+        id: getSecrets
+        run: |
+          RESOURCE_GROUP=db-api-radix-${{ steps.getEnvironment.outputs.result }}
+          INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
+          CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
 
-      #     echo ::set-output name=instrumentationKey::$(echo ${INSTRUMENTATIONKEY})
-      #     echo ::set-output name=connectionString::$(echo ${CONNECTION_STRING})
+          echo ::set-output name=instrumentationKey::$(echo ${INSTRUMENTATIONKEY})
+          echo ::set-output name=connectionString::$(echo ${CONNECTION_STRING})
 
-      #     echo ::add-mask::${INSTRUMENTATIONKEY}
-      #     echo ::add-mask::${CONNECTION_STRING}
-      # - name: Set instrumentation key as secret
-      #   uses: equinor/radix-github-actions@master
-      #   with:
-      #     args: >
-      #       set environment-secret
-      #       --context development
-      #       -e ${{ steps.getEnvironment.outputs.result }}
-      #       --component api
-      #       -s APPINSIGHTS_INSTRUMENTATIONKEY
-      #       -v '${{ steps.getSecrets.outputs.instrumentationKey }}'
-      # - name: Set connection string as secret
-      #   uses: equinor/radix-github-actions@master
-      #   with:
-      #     args: >
-      #       set environment-secret
-      #       --context development
-      #       -e ${{ steps.getEnvironment.outputs.result }}
-      #       --component api
-      #       -s AZURE_STORAGE_CONNECTION_STRING
-      #       -v '${{ steps.getSecrets.outputs.connectionString }}'
+          echo ::add-mask::${INSTRUMENTATIONKEY}
+          echo ::add-mask::${CONNECTION_STRING}
+      - name: Set instrumentation key as secret
+        uses: equinor/radix-github-actions@master
+        with:
+          args: >
+            set environment-secret
+            --context development
+            -e ${{ steps.getEnvironment.outputs.result }}
+            --component api
+            -s APPINSIGHTS_INSTRUMENTATIONKEY
+            -v '${{ steps.getSecrets.outputs.instrumentationKey }}'
+      - name: Set connection string as secret
+        uses: equinor/radix-github-actions@master
+        with:
+          args: >
+            set environment-secret
+            --context development
+            -e ${{ steps.getEnvironment.outputs.result }}
+            --component api
+            -s AZURE_STORAGE_CONNECTION_STRING
+            -v '${{ steps.getSecrets.outputs.connectionString }}'
