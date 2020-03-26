@@ -1,4 +1,4 @@
-# Radix example: Deploy-only
+# Radix example: Deploy-only.
 
 This is the repository that shows how to set up your application to be built outside of Radix, and deployed to Radix through the use of the Radix API. To see more documentation on this please refer to the [public documentation](https://www.radix.equinor.com/guides/deploy-only/)
 
