@@ -14,10 +14,9 @@ The application make use of a storage account, set up by the use of arm template
 
 ```json
 {
-  "appId": "ecbb2c1e-daf1-4ae2-8752-5d9a1e6514ed",
-  "displayName": "radix-example-arm-template",
-  "name": "http://radix-example-arm-template",
-  "password": "<secret value>",
-  "tenant": "3aa4a235-b6e2-48d5-9195-7fcf05b459b0"
+  "clientId": "ecbb2c1e-daf1-4ae2-8752-5d9a1e6514ed",
+  "clientSecret": "<secret value>",
+  "subscriptionId": "16ede44b-1f74-40a5-b428-46cca9a5741b",
+  "tenantId": "3aa4a235-b6e2-48d5-9195-7fcf05b459b0"
 }
 ```
