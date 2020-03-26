@@ -10,3 +10,14 @@ The application make use of a storage account, set up by the use of arm template
 - Have set up two resource groups. One for [qa](https://portal.azure.com/#@StatoilSRM.onmicrosoft.com/resource/subscriptions/16ede44b-1f74-40a5-b428-46cca9a5741b/resourceGroups/deploy-only-arm-template-qa/overview) and one for [prod](https://portal.azure.com/#@StatoilSRM.onmicrosoft.com/resource/subscriptions/16ede44b-1f74-40a5-b428-46cca9a5741b/resourceGroups/deploy-only-arm-template-prod/overview)
 - Have added radix-example-arm-template service principal as `Contributor` to these resource groups
 - Deployed to resource group `az deployment group create --name deploy-only --resource-group deploy-only-arm-template-<qa|prod> --template-file ./arm-templates/azuredeploy.json`
+- Set `AZURE_CREDENTIALS` to:
+
+```json
+{
+  "appId": "ecbb2c1e-daf1-4ae2-8752-5d9a1e6514ed",
+  "displayName": "radix-example-arm-template",
+  "name": "http://radix-example-arm-template",
+  "password": "<secret value>",
+  "tenant": "3aa4a235-b6e2-48d5-9195-7fcf05b459b0"
+}
+```
