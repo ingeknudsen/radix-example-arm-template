@@ -66,9 +66,9 @@ jobs:
       - name: Get instrumentation key and connection string
         id: getSecrets
         run: |
-          RESOURCE_GROUP=db-api-radix-${{ steps.getEnvironment.outputs.result }}
-          INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.appInsightInstrumentationKey.value)
-          CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n azuredeploy --query properties.outputs.storageConnectionString.value)
+          RESOURCE_GROUP=deploy-only-arm-template-${{ steps.getEnvironment.outputs.result }}
+          INSTRUMENTATIONKEY=$(az group deployment show -g ${RESOURCE_GROUP} -n deploy-only --query properties.outputs.appInsightInstrumentationKey.value)
+          CONNECTION_STRING=$(az group deployment show -g ${RESOURCE_GROUP} -n deploy-only --query properties.outputs.storageConnectionString.value)
 
           echo ::set-output name=instrumentationKey::$(echo ${INSTRUMENTATIONKEY})
           echo ::set-output name=connectionString::$(echo ${CONNECTION_STRING})
