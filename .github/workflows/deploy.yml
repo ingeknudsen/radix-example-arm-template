@@ -53,6 +53,7 @@ jobs:
         with:
           args: >
             get config branch-environment
+            --from-config
             -b ${GITHUB_REF##*/}
       - name: Deploy API on Radix
         uses: equinor/radix-github-actions@master
