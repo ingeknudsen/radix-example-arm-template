@@ -65,6 +65,18 @@ jobs:
             --context development
             -e ${{ steps.getEnvironment.outputs.result }}
             -f
+      # restart is required to update running components from static image-tags
+      - name: Restart API on Radix to update qa image
+        if: github.ref != 'refs/heads/release'
+        uses: equinor/radix-github-actions@master
+        with:
+          # environment and component name are hardcoded for the latest deployment
+          args: >
+            restart component
+            --context development
+            --from-config
+            --environment qa
+            --component api
       - name: Get instrumentation key and connection string
         id: getSecrets
         run: |
