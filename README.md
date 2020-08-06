@@ -20,3 +20,4 @@ The application make use of a storage account, set up by the use of arm template
   "tenantId": "3aa4a235-b6e2-48d5-9195-7fcf05b459b0"
 }
 ```
+.
