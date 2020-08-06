@@ -49,14 +49,14 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Get environment from branch
         id: getEnvironment
-        uses: equinor/radix-github-actions@master
+        uses: equinor/radix-github-actions@RA-1523-ReturnError
         with:
           args: >
             get config branch-environment
             --from-config
             -b ${GITHUB_REF##*/}
       - name: Deploy API on Radix
-        uses: equinor/radix-github-actions@master
+        uses: equinor/radix-github-actions@RA-1523-ReturnError
         with:
           args: >
             create job
@@ -78,7 +78,7 @@ jobs:
           echo ::add-mask::${INSTRUMENTATIONKEY}
           echo ::add-mask::${CONNECTION_STRING}
       - name: Set instrumentation key as secret
-        uses: equinor/radix-github-actions@master
+        uses: equinor/radix-github-actions@RA-1523-ReturnError
         with:
           args: >
             set environment-secret
@@ -89,7 +89,7 @@ jobs:
             -s APPINSIGHTS_INSTRUMENTATIONKEY
             -v '${{ steps.getSecrets.outputs.instrumentationKey }}'
       - name: Set connection string as secret
-        uses: equinor/radix-github-actions@master
+        uses: equinor/radix-github-actions@RA-1523-ReturnError
         with:
           args: >
             set environment-secret
