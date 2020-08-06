@@ -23,14 +23,14 @@ jobs:
           echo ::set-env name=IMAGE_TAG::$(echo ${GITHUB_REF##*/}-${GITHUB_SHA::8})
       - name: Get environment from branch
         id: getEnvironment
-        uses: equinor/radix-github-actions@RA-1523-ReturnError
+        uses: equinor/radix-github-actions@master
         with:
           args: >
             get config branch-environment
             --from-config
             -b ${GITHUB_REF##*/}
       - name: Deploy API on Radix
-        uses: equinor/radix-github-actions@RA-1523-ReturnError
+        uses: equinor/radix-github-actions@master
         with:
           args: >
             create job
